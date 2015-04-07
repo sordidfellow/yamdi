@@ -281,7 +281,7 @@ void printUsage(void);
 int main(int argc, char **argv) {
 	FILE *fp_infile = NULL, *fp_outfile = NULL, *fp_xmloutfile = NULL;
 	int c, unlink_infile = 0;
-	char *infile, *outfile, *xmloutfile, *tempfile, *creator;
+	char *infile, *outfile, *xmloutfile, *tempfile;
 	FLV_t flv;
 
 #ifdef DEBUG
@@ -298,7 +298,6 @@ int main(int argc, char **argv) {
 	outfile = NULL;
 	xmloutfile = NULL;
 	tempfile = NULL;
-	creator = NULL;
 
 	initFLV(&flv);
 
@@ -829,15 +828,18 @@ int analyzeFLV(FLV_t *flv, FILE *fp) {
 	// Calculate the last second
 	if(flv->lasttimestamp >= 1000) {
 		flv->lastsecond = flv->lasttimestamp - 1000;
-		for(i = (flv->index.nflvtags - 1); i >= 0; i--) {
-			flvtag = &flv->index.flvtag[i];
+		i = flv->index.nflvtags;
+		while(i != 0) {
+			flvtag = &flv->index.flvtag[i - 1];
 
 			if(flvtag->timestamp <= flv->lastsecond) {
 				flv->lastsecond += 1;
-				flv->lastsecondindex = i;
+				flv->lastsecondindex = (i - 1);
 
 				break;
 			}
+
+			i--;
 		}
 	}
 	else
